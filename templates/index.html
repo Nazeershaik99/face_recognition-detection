@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Face Recognition System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-100 to-blue-100 min-h-screen font-sans text-gray-800">
+
+  <!-- Header -->
+  <header class="bg-white shadow-md py-6 px-4 text-center">
+    <h1 class="text-3xl font-bold text-indigo-700">👁️‍🗨️ Face Recognition System</h1>
+  </header>
+
+  <!-- Main Content -->
+  <main class="p-6 max-w-3xl mx-auto space-y-6">
+
+    <!-- Upload Section -->
+    <section id="uploadSection">
+      <label class="block text-lg font-medium mb-2">Upload Image:</label>
+      <input type="file" accept="image/*" id="imageInput" class="block w-full text-sm border border-gray-300 p-2 rounded-md bg-white" />
+
+      <!-- Preview -->
+      <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-white flex justify-center items-center min-h-[200px] mt-4">
+        <img id="previewImage" src="" alt="Preview" class="max-h-64 rounded shadow-md hidden"/>
+        <span id="previewText" class="text-gray-500">No image selected</span>
+      </div>
+
+      <!-- Start Button -->
+      <div class="flex justify-end mt-4">
+        <button id="startProcessBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg shadow">Start the Process</button>
+      </div>
+
+      <!-- Result Box -->
+      <div class="mt-4">
+        <label class="block text-lg font-medium mb-2">Result:</label>
+        <div id="uploadResultBox" class="p-4 bg-white border border-gray-300 rounded-md text-gray-700 min-h-[50px]">No action performed yet.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Script -->
+  <script>
+    window.onload = () => {
+      const imageInput = document.getElementById('imageInput');
+      const previewImage = document.getElementById('previewImage');
+      const previewText = document.getElementById('previewText');
+
+      // Upload image preview
+      imageInput.addEventListener('change', () => {
+        const file = imageInput.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            previewImage.src = e.target.result;
+            previewImage.classList.remove("hidden");
+            previewText.style.display = "none";
+          };
+          reader.readAsDataURL(file);
+        } else {
+          previewImage.src = "";
+          previewImage.classList.add("hidden");
+          previewText.style.display = "block";
+        }
+      });
+
+      // Start processing upload
+      document.getElementById('startProcessBtn').addEventListener('click', () => {
+        const file = imageInput.files[0];
+        if (!file) {
+          alert("Please select an image.");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        fetch("/upload", {
+          method: "POST",
+          body: formData
+        })
+        .then(response => response.text())
+        .then(html => {
+          document.open();
+          document.write(html);
+          document.close();
+        })
+        .catch(error => {
+          document.getElementById("uploadResultBox").innerText = "Error: " + error;
+        });
+      });
+    };
+  </script>
+</body>
+</html>
